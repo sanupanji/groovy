@@ -1,0 +1,85 @@
+kind: "Template"
+apiVersion: v1
+metadata:
+  name: oc-cd-env-template
+objects:
+  - kind: BuildConfig
+    apiVersion: v1
+    metadata:
+      name: ${MICROSERVICENAME}-ms
+    spec:
+      runPolicy: Serial
+      source:
+        git:
+          uri: ${GIT_URL}
+          ref: ${BRANCH_NAME}
+        type: Git
+        sourceSecret:
+          name: sshbbsecret
+      triggers:
+        - imageChange:
+            from:
+              kind: ImageStreamTag
+              name: api-gateway:latest
+        - imageChange:
+            from:
+              kind: ImageStreamTag
+              name: validate-email:latest
+        - imageChange:
+            from:
+              kind: ImageStreamTag
+              name: benefit-program-service:latest
+        - imageChange:
+            from:
+              kind: ImageStreamTag
+              name: epp-admin-ui:latest
+        - imageChange:
+            from:
+              kind: ImageStreamTag
+              name: globaldata-settings-service:latest
+          type: imageChange
+        - generic:
+            secret: oc-cd-epp-main-${BRANCH_NAME}
+        - type: ConfigChange
+      strategy:
+        type: JenkinsPipeline
+        jenkinsPipelineStrategy:
+          jenkinsfilePath: Jenkinsfile
+          env:
+            - name: "BRANCH_NAME"
+              value: "${BRANCH_NAME}"
+            - name: "microserviceName"
+              value: "${MICROSERVICENAME}"
+            - name: "GIT_URL"
+              value: "${GIT_URL}"
+            - name: DO_NOT_PUBLISH_MAIL
+              value: "True"
+            - name: helmForceInstall
+              value: "False"
+            - name: CLEAN_INSTALL
+              value: "False"
+            - name: DEPLOY_EPP
+              value: "True"
+            - name: RUN_TESTS
+              value: "True"
+            - name: MASTER_CD_VERSION
+              value: "${MASTER_CD_VERSION}"
+            - name: MASTER_ENV_NAME
+              value: "${MASTER_ENV_NAME}"
+parameters:
+  - name: BRANCH_NAME
+    description: Git branch to be built
+    required: true
+  - name: GIT_URL
+    description: Git URL to be built
+    required: true
+  - name: MICROSERVICENAME
+    description: Name of Microservice
+    required: true
+  - name: MASTER_CD_VERSION
+    description: latest or numeric master catalogue version
+    required: true
+    value: latest
+  - name: MASTER_ENV_NAME
+    description: Master Env Name
+    required: true

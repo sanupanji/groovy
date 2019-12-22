@@ -1,32 +1,45 @@
 @Grab('org.yaml:snakeyaml:1.17')
+@Grab('com.xlson.groovycsv:groovycsv:1.3')
 import org.yaml.snakeyaml.*
 import org.yaml.snakeyaml.constructor.*
 import groovy.transform.*
+import static com.xlson.groovycsv.CsvParser.parseCsv
+ 
+FILE="file.yaml"
 
-InputStream input = new FileInputStream(new File("file.yaml"));
+InputStream input = new FileInputStream(new File(FILE));
 Yaml yaml = new Yaml();
+Object data = yaml.load(input);
 
-a="benefit-ms"
-all="api-gateway-ms,abcd-efgh-ms,ijk-lmn-ms,er-qwerfs-ff-ag-ns"
-req="fwrfrg-fg-d-g-e-ms,api-gateway-ms,aa-er-e-r-we,ijk-lmn-ms,era--as-fa-f"
+parentDOM=data.objects.spec.triggers[0]
+//Object searchDOM= imageChange.from.name
+
+a="admin-ui-ms"
+all="api-gateway-ms,benefit-program-service-ms,globaldata-settings-service-ms,validate-email-ms,epp-admin-ui-ms,grgr-dgfd-gdf-ms"
+req="api-gateway-ms,epp-admin-ui-ms,ef-f-sd-f-s-ms"
 arr=all.split(",")
 brr=req.split(",")
 rest=(arr-brr)
 println(rest)
 println(arr)
 
-st=a.replaceAll("ms","").replaceAll("-","(.*)")
-st="(.*)"+st+"(.*)"
+for (i in rest){
+    println(i)
+
+st=i.replaceAll("ms","").replaceAll("-","(.*)")
+st="(.*)"+st+"(.*)" as String
 println(st)
-Object data = yaml.load(input);
-p=data.objects.spec.triggers[0].find { it.imageChange.from.name.matches(st) }
+//pt=parentDOM*.name.matches("admin")
+pt=parentDOM.find { it.imageChange.from?.name.matches(st) }
 println("=================================================")
-println(p)
+println(pt)
 println("=================================================")
-println(data.objects.spec.triggers[0])
+println(parentDOM)
 println("=================================================")
-data.objects.spec.triggers[0].removeElement(p)
-println(data.objects.spec.triggers[0])
+parentDOM.removeElement(pt)
+println(parentDOM)
+
+}
 DumperOptions options = new DumperOptions()
 options.setPrettyFlow(true)
 options.setDefaultFlowStyle(DumperOptions.FlowStyle.BLOCK)

@@ -24,16 +24,7 @@ objects:
     - imageChange:
         from:
           kind: ImageStreamTag
-          name: validate-email:latest
-    - imageChange:
-        from:
-          kind: ImageStreamTag
           name: epp-admin-ui:latest
-    - imageChange:
-        from:
-          kind: ImageStreamTag
-          name: globaldata-settings-service:latest
-      type: imageChange
     - generic:
         secret: oc-cd-epp-main-${BRANCH_NAME}
     - type: ConfigChange
